@@ -1,43 +1,16 @@
 ;(function () {
-  var CHARS = [
-    '\u11580',
-    '\u11582',
-    '\u11584',
-    '\u1158D',
-    '\u1158E',
-    '\u1158F',
-    '\u11590',
-    '\u11591',
-    '\u11592',
-    '\u11593',
-    '\u11594',
-    '\u11595',
-    '\u11596',
-    '\u11597',
-    '\u11598',
-    '\u11599',
-    '\u1159A',
-    '\u1159B',
-    '\u1159C',
-    '\u1159D',
-    '\u1159E',
-    '\u1159F',
-    '\u115A0',
-    '\u115A1',
-    '\u115A2',
-    '\u115A3',
-    '\u115A4',
-    '\u115A5',
-    '\u115A6',
-    '\u115A7',
-    '\u115A8',
-    '\u115A9',
-    '\u115AA',
-    '\u115AB',
-    '\u115AC',
-    '\u115AD',
-    '\u115AE',
+  /* Must use fromCodePoint — '\u11580' is parsed as '\u1158' + '0' in JS. */
+  var CODEPOINTS = [
+    0x11580, 0x11582, 0x11584, 0x1158d, 0x1158e, 0x1158f, 0x11590, 0x11591,
+    0x11592, 0x11593, 0x11594, 0x11595, 0x11596, 0x11597, 0x11598, 0x11599,
+    0x1159a, 0x1159b, 0x1159c, 0x1159d, 0x1159e, 0x1159f, 0x115a0, 0x115a1,
+    0x115a2, 0x115a3, 0x115a4, 0x115a5, 0x115a6, 0x115a7, 0x115a8, 0x115a9,
+    0x115aa, 0x115ab, 0x115ac, 0x115ad, 0x115ae,
   ]
+
+  var CHARS = CODEPOINTS.map(function (cp) {
+    return String.fromCodePoint(cp)
+  })
 
   function rand(min, max) {
     return min + Math.random() * (max - min)
@@ -93,6 +66,9 @@
   if (document.fonts && document.fonts.load) {
     document.fonts
       .load('48px "Noto Sans Siddham"')
+      .then(function () {
+        return document.fonts.ready
+      })
       .then(markReady)
       .catch(markReady)
   } else {

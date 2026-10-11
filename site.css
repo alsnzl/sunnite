@@ -4,8 +4,7 @@
   src: url('./fonts/NotoSansSiddham-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
-  unicode-range: U+11580-115FF;
+  font-display: block;
 }
 
 :root {
