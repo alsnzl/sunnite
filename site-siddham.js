@@ -61,7 +61,7 @@
     var size = rand(2.2, 5.8)
     var left = rand(2, 92)
     var top = rand(4, 88)
-    var peak = rand(0.06, 0.16)
+    var peak = rand(0.07, 0.18)
     var driftMs = rand(14000, 28000)
     var fadeMs = rand(9000, 18000)
     var delay = rand(-fadeMs, 0)
@@ -85,4 +85,17 @@
   }
 
   document.body.prepend(root)
+
+  function markReady() {
+    root.classList.add('is-ready')
+  }
+
+  if (document.fonts && document.fonts.load) {
+    document.fonts
+      .load('48px "Noto Sans Siddham"')
+      .then(markReady)
+      .catch(markReady)
+  } else {
+    markReady()
+  }
 })()

@@ -1,4 +1,13 @@
 /* SUNNITE site — tones from 붇다의 범어교실 (study desk + liquid glass) */
+@font-face {
+  font-family: 'Noto Sans Siddham';
+  src: url('./fonts/NotoSansSiddham-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+11580-115FF;
+}
+
 :root {
   --paper: #eef1f4;
   --paper-deep: #e5eaef;
@@ -330,7 +339,9 @@ body {
   backdrop-filter: blur(28px) saturate(1.5);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-specular), 0 8px 28px color-mix(in srgb, var(--shadow) 40%, transparent);
-  transition: transform 0.25s var(--ease-out);
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
 }
 
 .qa-item:hover {
@@ -358,18 +369,45 @@ body {
   margin-top: 0.2rem;
   font-size: 0.62rem;
   color: var(--teal);
-  transition: transform 0.25s var(--ease-out);
+  transition: transform 0.32s var(--ease-out);
 }
 
+.qa-item.is-open summary::before,
 .qa-item[open] summary::before {
   transform: rotate(90deg);
 }
 
 .qa-item .qa-answer {
-  padding: 0 1.15rem 1.15rem 2.35rem;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.38s var(--ease-out);
   color: var(--ink-soft);
   font-size: 0.95rem;
   line-height: 1.65;
+}
+
+.qa-item.is-open .qa-answer,
+.qa-item[open] .qa-answer {
+  grid-template-rows: 1fr;
+}
+
+.qa-item .qa-answer__inner {
+  overflow: hidden;
+  padding: 0 1.15rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.28s var(--ease-out),
+    transform 0.28s var(--ease-out),
+    padding-bottom 0.38s var(--ease-out);
+}
+
+.qa-item.is-open .qa-answer__inner,
+.qa-item[open] .qa-answer__inner {
+  opacity: 1;
+  transform: translateY(0);
+  padding-bottom: 1.15rem;
+  padding-left: 2.35rem;
 }
 
 .nav-link {
@@ -411,7 +449,7 @@ body {
 
 .siddham-field__glyph {
   position: absolute;
-  font-family: 'Noto Sans Siddham', 'Noto Sans KR', serif;
+  font-family: 'Noto Sans Siddham', sans-serif;
   font-weight: 400;
   line-height: 1;
   color: color-mix(in srgb, var(--teal) 55%, var(--ink) 45%);
@@ -421,6 +459,11 @@ body {
   animation-name: siddham-drift, siddham-fade;
   animation-timing-function: ease-in-out, ease-in-out;
   animation-iteration-count: infinite, infinite;
+  animation-play-state: paused;
+}
+
+.siddham-field.is-ready .siddham-field__glyph {
+  animation-play-state: running;
 }
 
 body > *:not(.siddham-field) {
