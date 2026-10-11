@@ -93,6 +93,31 @@
         transform-box: fill-box;
         transform-origin: 50% 100%;
       }
+      .feedback-field {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(24, 34, 48, 0.12);
+        background: color-mix(in srgb, #f8f9fb 92%, white);
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+        color: #182230;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .feedback-field:focus {
+        border-color: color-mix(in srgb, #2c6b66 55%, transparent);
+        box-shadow: 0 0 0 3px rgba(44, 107, 102, 0.14);
+      }
+      .feedback-field::placeholder {
+        color: #6a7688;
+      }
+      .hp-field {
+        position: absolute !important;
+        left: -9999px !important;
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+      }
     </style>
   </head>
   <body class="min-h-screen font-sans antialiased">
@@ -136,9 +161,10 @@
           <p class="text-xs text-muted">수니따</p>
         </div>
       </div>
-      <nav class="flex items-center gap-4 text-sm text-ink-soft">
+      <nav class="flex flex-wrap items-center justify-end gap-x-4 gap-y-1 text-sm text-ink-soft">
         <a href="#app" class="transition hover:text-teal">앱</a>
         <a href="#about" class="transition hover:text-teal">소개</a>
+        <a href="#feedback" class="transition hover:text-teal">의견</a>
         <a href="#contact" class="transition hover:text-teal">연락처</a>
       </nav>
     </header>
@@ -318,6 +344,104 @@
           </div>
         </dl>
       </section>
+
+      <!-- Voice of customer / Netlify Forms -->
+      <section id="feedback" class="mx-auto w-full max-w-5xl px-5 pb-16 sm:px-8">
+        <div class="mx-auto max-w-2xl">
+          <div class="text-center">
+            <p class="text-xs font-semibold tracking-[0.16em] text-teal">VOICE</p>
+            <h2 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+              고객의 소리
+            </h2>
+            <p class="mt-3 text-base leading-relaxed text-ink-soft">
+              앱 이용 의견, 개선 제안, 오류 제보를 남겨 주세요. 확인 후 필요하면 답변드립니다.
+            </p>
+          </div>
+
+          <div
+            id="feedback-success"
+            class="mt-8 hidden rounded-2xl border border-teal/25 bg-teal/10 px-5 py-6 text-center"
+            role="status"
+            aria-live="polite"
+          >
+            <p class="font-display text-lg font-bold text-ink">보내 주셔서 감사합니다</p>
+            <p class="mt-2 text-sm text-ink-soft">소중한 의견은 서비스 개선에 반영하겠습니다.</p>
+          </div>
+
+          <form
+            id="feedback-form"
+            class="glass mt-8 space-y-5 rounded-3xl p-6 shadow-soft sm:p-8"
+            name="feedback"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            novalidate
+          >
+            <input type="hidden" name="form-name" value="feedback" />
+
+            <p class="hp-field" aria-hidden="true">
+              <label>
+                Don’t fill this out if you’re human:
+                <input type="text" name="bot-field" tabindex="-1" autocomplete="off" />
+              </label>
+            </p>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <label class="block text-left text-sm">
+                <span class="mb-1.5 block font-medium text-ink-soft">이름 <span class="text-muted">(선택)</span></span>
+                <input class="feedback-field" type="text" name="name" autocomplete="name" placeholder="홍길동" />
+              </label>
+              <label class="block text-left text-sm">
+                <span class="mb-1.5 block font-medium text-ink-soft"
+                  >이메일 <span class="text-muted">(선택 · 답변용)</span></span
+                >
+                <input
+                  class="feedback-field"
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  placeholder="you@example.com"
+                />
+              </label>
+            </div>
+
+            <label class="block text-left text-sm">
+              <span class="mb-1.5 block font-medium text-ink-soft">유형</span>
+              <select class="feedback-field" name="category" required>
+                <option value="의견">의견</option>
+                <option value="버그">버그</option>
+                <option value="문의">문의</option>
+              </select>
+            </label>
+
+            <label class="block text-left text-sm">
+              <span class="mb-1.5 block font-medium text-ink-soft">내용</span>
+              <textarea
+                class="feedback-field min-h-[9rem] resize-y"
+                name="message"
+                required
+                maxlength="4000"
+                placeholder="의견이나 겪은 문제를 자유롭게 적어 주세요."
+              ></textarea>
+            </label>
+
+            <p id="feedback-error" class="hidden text-sm text-[#b45a4a]" role="alert"></p>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p class="text-xs leading-relaxed text-muted">
+                제출 내용은 서비스 개선 목적에만 사용합니다.
+              </p>
+              <button
+                id="feedback-submit"
+                type="submit"
+                class="inline-flex items-center justify-center rounded-xl bg-teal px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-teal-soft disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                의견 보내기
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
     </main>
 
     <!-- Footer: org contact (Play verification) -->
@@ -382,5 +506,61 @@
         </div>
       </div>
     </footer>
+
+    <script>
+      (function () {
+        var form = document.getElementById('feedback-form')
+        if (!form) return
+
+        var success = document.getElementById('feedback-success')
+        var errorEl = document.getElementById('feedback-error')
+        var submitBtn = document.getElementById('feedback-submit')
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault()
+          if (errorEl) {
+            errorEl.classList.add('hidden')
+            errorEl.textContent = ''
+          }
+
+          var message = form.elements.namedItem('message')
+          if (!message || !String(message.value || '').trim()) {
+            if (errorEl) {
+              errorEl.textContent = '내용을 입력해 주세요.'
+              errorEl.classList.remove('hidden')
+            }
+            return
+          }
+
+          if (submitBtn) {
+            submitBtn.disabled = true
+            submitBtn.textContent = '보내는 중…'
+          }
+
+          var formData = new FormData(form)
+          fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData).toString(),
+          })
+            .then(function (res) {
+              if (!res.ok) throw new Error('submit failed')
+              form.classList.add('hidden')
+              if (success) success.classList.remove('hidden')
+            })
+            .catch(function () {
+              if (errorEl) {
+                errorEl.textContent =
+                  '전송에 실패했습니다. 잠시 후 다시 시도하거나 이메일로 문의해 주세요.'
+                errorEl.classList.remove('hidden')
+              }
+              if (submitBtn) {
+                submitBtn.disabled = false
+                submitBtn.textContent = '의견 보내기'
+              }
+            })
+        })
+      })()
+    </script>
   </body>
 </html>
