@@ -398,3 +398,78 @@ body {
   width: 1px;
   overflow: hidden;
 }
+
+/* Floating Siddham field — decorative, behind content */
+.siddham-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.siddham-field__glyph {
+  position: absolute;
+  font-family: 'Noto Sans Siddham', 'Noto Sans KR', serif;
+  font-weight: 400;
+  line-height: 1;
+  color: color-mix(in srgb, var(--teal) 55%, var(--ink) 45%);
+  opacity: 0;
+  will-change: transform, opacity, filter;
+  mix-blend-mode: multiply;
+  animation-name: siddham-drift, siddham-fade;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+body > *:not(.siddham-field) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep sticky header above the field */
+.site-header {
+  z-index: 40;
+}
+
+@keyframes siddham-drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot-start)) scale(var(--scale));
+  }
+  50% {
+    transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot-mid)) scale(calc(var(--scale) * 1.06));
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot-end)) scale(var(--scale));
+  }
+}
+
+@keyframes siddham-fade {
+  0%,
+  100% {
+    opacity: 0;
+    filter: blur(var(--blur-far));
+  }
+  18% {
+    opacity: var(--peak);
+    filter: blur(var(--blur-near));
+  }
+  55% {
+    opacity: calc(var(--peak) * 0.72);
+    filter: blur(var(--blur-near));
+  }
+  82% {
+    opacity: 0;
+    filter: blur(var(--blur-far));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .siddham-field__glyph {
+    animation: none !important;
+    opacity: 0.08 !important;
+    filter: blur(1px) !important;
+    transform: none !important;
+  }
+}
