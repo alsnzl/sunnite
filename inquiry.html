@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="SUNNITE 1:1 비밀 문의 — 붇다의 범어교실" />
+    <meta name="theme-color" content="#eef1f4" />
+    <title>1:1 비밀 문의 · SUNNITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: '#eef1f4',
+              'paper-deep': '#e5eaef',
+              surface: '#f8f9fb',
+              ink: '#182230',
+              'ink-soft': '#3a4658',
+              muted: '#6a7688',
+              teal: '#2c6b66',
+              'teal-soft': '#4a8f88',
+            },
+            fontFamily: {
+              display: ['Fraunces', 'Noto Serif KR', 'Georgia', 'serif'],
+              sans: ['Noto Sans KR', 'system-ui', 'sans-serif'],
+            },
+            boxShadow: { soft: '0 10px 40px rgba(24, 34, 48, 0.08)' },
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background: linear-gradient(180deg, #f5f7f9 0%, #eef1f4 42%, #e5eaef 100%);
+        color: #182230;
+      }
+      .glass {
+        background: color-mix(in srgb, #f8f9fb 86%, transparent);
+        backdrop-filter: blur(18px) saturate(1.2);
+        border: 1px solid rgba(24, 34, 48, 0.08);
+      }
+      .field {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(24, 34, 48, 0.12);
+        background: color-mix(in srgb, #f8f9fb 92%, white);
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+        color: #182230;
+        outline: none;
+      }
+      .field:focus {
+        border-color: color-mix(in srgb, #2c6b66 55%, transparent);
+        box-shadow: 0 0 0 3px rgba(44, 107, 102, 0.14);
+      }
+      .tab-btn.is-active {
+        background: #2c6b66;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen font-sans antialiased">
+    <header class="mx-auto flex w-full max-w-3xl items-center justify-between px-5 py-5 sm:px-8">
+      <a href="/" class="leading-tight">
+        <p class="font-display text-lg font-bold tracking-tight text-ink">SUNNITE</p>
+        <p class="text-xs text-muted">1:1 비밀 문의</p>
+      </a>
+      <nav class="flex gap-4 text-sm text-ink-soft">
+        <a href="/" class="transition hover:text-teal">홈</a>
+        <a href="/#qa" class="transition hover:text-teal">Q&amp;A</a>
+      </nav>
+    </header>
+
+    <main class="mx-auto w-full max-w-3xl px-5 pb-16 sm:px-8">
+      <div class="text-center">
+        <p class="text-xs font-semibold tracking-[0.16em] text-teal">PRIVATE INQUIRY</p>
+        <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink">1:1 비밀 문의</h1>
+        <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
+          문의는 비밀번호(4자리)로만 열람됩니다. 작성 후 받는 <strong class="text-ink">문의 코드</strong>와
+          PIN을 꼭 보관하세요. 관리자 답글도 같은 코드·PIN으로 확인합니다.
+        </p>
+      </div>
+
+      <div class="mt-8 flex justify-center gap-2">
+        <button type="button" data-tab="write" class="tab-btn is-active rounded-xl px-4 py-2 text-sm font-semibold text-ink-soft transition">
+          문의 작성
+        </button>
+        <button type="button" data-tab="view" class="tab-btn rounded-xl px-4 py-2 text-sm font-semibold text-ink-soft transition">
+          내 문의 보기
+        </button>
+      </div>
+
+      <section id="panel-write" class="glass mt-6 rounded-3xl p-6 shadow-soft sm:p-8">
+        <div id="write-success" class="hidden rounded-2xl border border-teal/25 bg-teal/10 px-5 py-6 text-center">
+          <p class="font-display text-lg font-bold text-ink">문의가 등록되었습니다</p>
+          <p class="mt-3 text-sm text-ink-soft">문의 코드</p>
+          <p id="write-code" class="mt-1 font-display text-2xl font-bold tracking-wider text-teal"></p>
+          <p class="mt-4 text-sm leading-relaxed text-ink-soft">
+            이 코드와 방금 설정한 <strong class="text-ink">4자리 PIN</strong>을 기억해 두세요.
+            분실 시 문의 내용을 다시 열 수 없습니다.
+          </p>
+          <button
+            type="button"
+            id="goto-view"
+            class="mt-5 inline-flex rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white"
+          >
+            내 문의 보기
+          </button>
+        </div>
+
+        <form id="write-form" class="space-y-4" novalidate>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block text-sm">
+              <span class="mb-1.5 block font-medium text-ink-soft">이름 (선택)</span>
+              <input class="field" name="name" autocomplete="name" />
+            </label>
+            <label class="block text-sm">
+              <span class="mb-1.5 block font-medium text-ink-soft">이메일 (필수 · 답변 안내용)</span>
+              <input class="field" name="email" type="email" required autocomplete="email" />
+            </label>
+          </div>
+          <label class="block text-sm">
+            <span class="mb-1.5 block font-medium text-ink-soft">유형</span>
+            <select class="field" name="category">
+              <option value="문의">문의</option>
+              <option value="의견">의견</option>
+              <option value="버그">버그</option>
+            </select>
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1.5 block font-medium text-ink-soft">내용</span>
+            <textarea class="field min-h-[9rem] resize-y" name="body" required maxlength="4000"></textarea>
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1.5 block font-medium text-ink-soft">열람 비밀번호 (숫자 4자리)</span>
+            <input
+              class="field tracking-[0.35em]"
+              name="pin"
+              type="password"
+              inputmode="numeric"
+              pattern="\d{4}"
+              maxlength="4"
+              autocomplete="new-password"
+              required
+              placeholder="••••"
+            />
+          </label>
+          <p id="write-error" class="hidden text-sm text-[#b45a4a]"></p>
+          <button
+            id="write-submit"
+            type="submit"
+            class="inline-flex rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            비밀 문의 등록
+          </button>
+        </form>
+      </section>
+
+      <section id="panel-view" class="glass mt-6 hidden rounded-3xl p-6 shadow-soft sm:p-8">
+        <form id="view-form" class="space-y-4" novalidate>
+          <label class="block text-sm">
+            <span class="mb-1.5 block font-medium text-ink-soft">문의 코드</span>
+            <input class="field uppercase tracking-wider" name="code" placeholder="SB-XXXXXX" required />
+          </label>
+          <label class="block text-sm">
+            <span class="mb-1.5 block font-medium text-ink-soft">열람 비밀번호 (4자리)</span>
+            <input
+              class="field tracking-[0.35em]"
+              name="pin"
+              type="password"
+              inputmode="numeric"
+              pattern="\d{4}"
+              maxlength="4"
+              required
+              placeholder="••••"
+            />
+          </label>
+          <p id="view-error" class="hidden text-sm text-[#b45a4a]"></p>
+          <button
+            id="view-submit"
+            type="submit"
+            class="inline-flex rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            열기
+          </button>
+        </form>
+
+        <article id="view-result" class="mt-8 hidden border-t border-ink/10 pt-6">
+          <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
+            <span id="view-code" class="font-semibold tracking-wider text-teal"></span>
+            <span>·</span>
+            <span id="view-category"></span>
+            <span>·</span>
+            <span id="view-status"></span>
+            <span>·</span>
+            <span id="view-date"></span>
+          </div>
+          <h2 class="mt-3 font-display text-lg font-bold text-ink">내 질문</h2>
+          <p id="view-body" class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft"></p>
+          <div id="view-reply-wrap" class="mt-6 hidden rounded-2xl bg-teal/10 px-4 py-4">
+            <p class="text-xs font-semibold tracking-[0.14em] text-teal">관리자 답변</p>
+            <p id="view-reply" class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-ink"></p>
+            <p id="view-replied-at" class="mt-2 text-xs text-muted"></p>
+          </div>
+          <p id="view-waiting" class="mt-6 text-sm text-muted">아직 답변이 등록되지 않았습니다.</p>
+        </article>
+      </section>
+    </main>
+
+    <script src="./config.js"></script>
+    <script src="./site-api.js"></script>
+    <script>
+      ;(function () {
+        var tabs = document.querySelectorAll('.tab-btn')
+        var writePanel = document.getElementById('panel-write')
+        var viewPanel = document.getElementById('panel-view')
+
+        function showTab(name) {
+          tabs.forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-tab') === name)
+          })
+          writePanel.classList.toggle('hidden', name !== 'write')
+          viewPanel.classList.toggle('hidden', name !== 'view')
+        }
+
+        tabs.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            showTab(btn.getAttribute('data-tab'))
+          })
+        })
+
+        document.getElementById('goto-view').addEventListener('click', function () {
+          var code = document.getElementById('write-code').textContent
+          document.querySelector('#view-form [name=code]').value = code
+          showTab('view')
+        })
+
+        var writeForm = document.getElementById('write-form')
+        var writeErr = document.getElementById('write-error')
+        var writeBtn = document.getElementById('write-submit')
+
+        writeForm.addEventListener('submit', function (e) {
+          e.preventDefault()
+          writeErr.classList.add('hidden')
+          var fd = new FormData(writeForm)
+          var email = String(fd.get('email') || '').trim()
+          var pin = String(fd.get('pin') || '').trim()
+          var body = String(fd.get('body') || '').trim()
+          if (!email) {
+            writeErr.textContent = '이메일을 입력해 주세요.'
+            writeErr.classList.remove('hidden')
+            return
+          }
+          if (!/^\d{4}$/.test(pin)) {
+            writeErr.textContent = '비밀번호는 숫자 4자리여야 합니다.'
+            writeErr.classList.remove('hidden')
+            return
+          }
+          if (!body) {
+            writeErr.textContent = '내용을 입력해 주세요.'
+            writeErr.classList.remove('hidden')
+            return
+          }
+          writeBtn.disabled = true
+          writeBtn.textContent = '등록 중…'
+          SunniteApi.createInquiry({
+            email: email,
+            name: String(fd.get('name') || '').trim(),
+            category: String(fd.get('category') || '문의'),
+            body: body,
+            pin: pin,
+          })
+            .then(function (res) {
+              writeForm.classList.add('hidden')
+              document.getElementById('write-success').classList.remove('hidden')
+              document.getElementById('write-code').textContent = res.code
+            })
+            .catch(function (err) {
+              writeErr.textContent =
+                err.message === 'config'
+                  ? '사이트 설정(config.js)이 없습니다.'
+                  : '등록에 실패했습니다. 잠시 후 다시 시도해 주세요.'
+              writeErr.classList.remove('hidden')
+              writeBtn.disabled = false
+              writeBtn.textContent = '비밀 문의 등록'
+            })
+        })
+
+        var viewForm = document.getElementById('view-form')
+        var viewErr = document.getElementById('view-error')
+        var viewBtn = document.getElementById('view-submit')
+
+        viewForm.addEventListener('submit', function (e) {
+          e.preventDefault()
+          viewErr.classList.add('hidden')
+          document.getElementById('view-result').classList.add('hidden')
+          var fd = new FormData(viewForm)
+          var code = String(fd.get('code') || '').trim().toUpperCase()
+          var pin = String(fd.get('pin') || '').trim()
+          if (!code || !/^\d{4}$/.test(pin)) {
+            viewErr.textContent = '문의 코드와 4자리 비밀번호를 확인해 주세요.'
+            viewErr.classList.remove('hidden')
+            return
+          }
+          viewBtn.disabled = true
+          viewBtn.textContent = '확인 중…'
+          SunniteApi.viewInquiry(code, pin)
+            .then(function (res) {
+              var q = res.inquiry
+              document.getElementById('view-code').textContent = q.code
+              document.getElementById('view-category').textContent = q.category
+              document.getElementById('view-status').textContent =
+                q.status === 'answered' ? '답변 완료' : '답변 대기'
+              document.getElementById('view-date').textContent = new Date(q.created_at).toLocaleString('ko-KR')
+              document.getElementById('view-body').textContent = q.body
+              var hasReply = Boolean(q.admin_reply)
+              document.getElementById('view-reply-wrap').classList.toggle('hidden', !hasReply)
+              document.getElementById('view-waiting').classList.toggle('hidden', hasReply)
+              if (hasReply) {
+                document.getElementById('view-reply').textContent = q.admin_reply
+                document.getElementById('view-replied-at').textContent = q.replied_at
+                  ? '답변일: ' + new Date(q.replied_at).toLocaleString('ko-KR')
+                  : ''
+              }
+              document.getElementById('view-result').classList.remove('hidden')
+            })
+            .catch(function (err) {
+              viewErr.textContent =
+                err.status === 429
+                  ? '시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.'
+                  : '코드 또는 비밀번호가 올바르지 않습니다.'
+              viewErr.classList.remove('hidden')
+            })
+            .finally(function () {
+              viewBtn.disabled = false
+              viewBtn.textContent = '열기'
+            })
+        })
+
+        if (location.hash === '#view') showTab('view')
+      })()
+    </script>
+  </body>
+</html>

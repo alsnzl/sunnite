@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#eef1f4" />
+    <title>문의 관리 · SUNNITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+KR:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: '#eef1f4',
+              surface: '#f8f9fb',
+              ink: '#182230',
+              'ink-soft': '#3a4658',
+              muted: '#6a7688',
+              teal: '#2c6b66',
+              'teal-soft': '#4a8f88',
+            },
+            fontFamily: {
+              display: ['Fraunces', 'Noto Serif KR', 'Georgia', 'serif'],
+              sans: ['Noto Sans KR', 'system-ui', 'sans-serif'],
+            },
+            boxShadow: { soft: '0 10px 40px rgba(24, 34, 48, 0.08)' },
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background: linear-gradient(180deg, #f5f7f9 0%, #eef1f4 42%, #e5eaef 100%);
+        color: #182230;
+      }
+      .glass {
+        background: color-mix(in srgb, #f8f9fb 90%, transparent);
+        border: 1px solid rgba(24, 34, 48, 0.08);
+      }
+      .field {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(24, 34, 48, 0.12);
+        background: #f8f9fb;
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+        outline: none;
+      }
+      .field:focus {
+        border-color: color-mix(in srgb, #2c6b66 55%, transparent);
+        box-shadow: 0 0 0 3px rgba(44, 107, 102, 0.14);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen font-sans antialiased">
+    <header class="mx-auto flex w-full max-w-4xl items-center justify-between px-5 py-5 sm:px-8">
+      <div>
+        <p class="font-display text-lg font-bold text-ink">SUNNITE Admin</p>
+        <p class="text-xs text-muted">1:1 비밀 문의 관리</p>
+      </div>
+      <a href="/" class="text-sm text-ink-soft hover:text-teal">사이트로</a>
+    </header>
+
+    <main class="mx-auto w-full max-w-4xl px-5 pb-16 sm:px-8">
+      <section id="login-panel" class="glass mx-auto max-w-md rounded-3xl p-6 shadow-soft">
+        <h1 class="font-display text-xl font-bold text-ink">관리자 로그인</h1>
+        <p class="mt-2 text-sm text-ink-soft">
+          Supabase에 설정한 <code class="text-teal">SITE_INQUIRY_ADMIN_SECRET</code> 과 같은 비밀번호를
+          입력하세요.
+        </p>
+        <form id="login-form" class="mt-5 space-y-4">
+          <label class="block text-sm">
+            <span class="mb-1.5 block font-medium text-ink-soft">관리자 비밀번호</span>
+            <input class="field" type="password" name="secret" autocomplete="current-password" required />
+          </label>
+          <p id="login-error" class="hidden text-sm text-[#b45a4a]"></p>
+          <button type="submit" class="rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white">
+            들어가기
+          </button>
+        </form>
+      </section>
+
+      <section id="admin-panel" class="hidden">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <h1 class="font-display text-2xl font-bold text-ink">문의 목록</h1>
+          <div class="flex gap-2">
+            <button
+              id="refresh-btn"
+              type="button"
+              class="rounded-xl border border-ink/10 bg-surface px-4 py-2 text-sm font-medium text-ink-soft"
+            >
+              새로고침
+            </button>
+            <button
+              id="logout-btn"
+              type="button"
+              class="rounded-xl border border-ink/10 bg-surface px-4 py-2 text-sm font-medium text-ink-soft"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+        <p id="admin-error" class="mb-4 hidden text-sm text-[#b45a4a]"></p>
+        <div id="inquiry-list" class="space-y-4"></div>
+      </section>
+    </main>
+
+    <script src="./config.js"></script>
+    <script src="./site-api.js"></script>
+    <script>
+      ;(function () {
+        var STORAGE_KEY = 'sunnite_admin_secret'
+        var loginPanel = document.getElementById('login-panel')
+        var adminPanel = document.getElementById('admin-panel')
+        var listEl = document.getElementById('inquiry-list')
+        var adminErr = document.getElementById('admin-error')
+
+        function secret() {
+          return sessionStorage.getItem(STORAGE_KEY) || ''
+        }
+
+        function setLoggedIn(on) {
+          loginPanel.classList.toggle('hidden', on)
+          adminPanel.classList.toggle('hidden', !on)
+        }
+
+        function escapeHtml(str) {
+          return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+        }
+
+        function renderList(items) {
+          if (!items.length) {
+            listEl.innerHTML = '<p class="text-sm text-muted">등록된 문의가 없습니다.</p>'
+            return
+          }
+          listEl.innerHTML = items
+            .map(function (item) {
+              var open = item.status !== 'answered'
+              return (
+                '<article class="glass rounded-2xl p-5 shadow-soft" data-code="' +
+                escapeHtml(item.code) +
+                '">' +
+                '<div class="flex flex-wrap items-center gap-2 text-xs text-muted">' +
+                '<span class="font-semibold tracking-wider text-teal">' +
+                escapeHtml(item.code) +
+                '</span><span>·</span><span>' +
+                escapeHtml(item.category) +
+                '</span><span>·</span><span>' +
+                (item.status === 'answered' ? '답변 완료' : '답변 대기') +
+                '</span><span>·</span><span>' +
+                new Date(item.created_at).toLocaleString('ko-KR') +
+                '</span></div>' +
+                '<p class="mt-2 text-sm text-ink-soft"><strong class="text-ink">이메일</strong> ' +
+                escapeHtml(item.email) +
+                (item.name ? ' · ' + escapeHtml(item.name) : '') +
+                '</p>' +
+                '<p class="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink">' +
+                escapeHtml(item.body) +
+                '</p>' +
+                (item.admin_reply
+                  ? '<div class="mt-4 rounded-xl bg-teal/10 px-3 py-3 text-sm"><p class="text-xs font-semibold text-teal">기존 답변</p><p class="mt-1 whitespace-pre-wrap text-ink-soft">' +
+                    escapeHtml(item.admin_reply) +
+                    '</p></div>'
+                  : '') +
+                '<form class="reply-form mt-4 space-y-2">' +
+                '<label class="block text-sm"><span class="mb-1 block font-medium text-ink-soft">' +
+                (open ? '답글 작성' : '답글 수정') +
+                '</span>' +
+                '<textarea class="field min-h-[6rem]" name="reply" required>' +
+                escapeHtml(item.admin_reply || '') +
+                '</textarea></label>' +
+                '<button type="submit" class="rounded-xl bg-teal px-4 py-2 text-sm font-semibold text-white">저장</button>' +
+                '<span class="reply-msg ml-2 text-sm text-teal"></span>' +
+                '</form></article>'
+              )
+            })
+            .join('')
+
+          listEl.querySelectorAll('.reply-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+              e.preventDefault()
+              var article = form.closest('[data-code]')
+              var code = article.getAttribute('data-code')
+              var reply = String(new FormData(form).get('reply') || '').trim()
+              var msg = form.querySelector('.reply-msg')
+              var btn = form.querySelector('button[type=submit]')
+              btn.disabled = true
+              msg.textContent = '저장 중…'
+              SunniteApi.adminReply(secret(), code, reply)
+                .then(function () {
+                  msg.textContent = '저장됨'
+                  return loadList()
+                })
+                .catch(function () {
+                  msg.textContent = '실패'
+                  btn.disabled = false
+                })
+            })
+          })
+        }
+
+        function loadList() {
+          adminErr.classList.add('hidden')
+          return SunniteApi.adminList(secret())
+            .then(function (res) {
+              setLoggedIn(true)
+              renderList(res.inquiries || [])
+            })
+            .catch(function (err) {
+              if (err.status === 401) {
+                sessionStorage.removeItem(STORAGE_KEY)
+                setLoggedIn(false)
+                document.getElementById('login-error').textContent = '비밀번호가 올바르지 않습니다.'
+                document.getElementById('login-error').classList.remove('hidden')
+              } else {
+                adminErr.textContent =
+                  err.message === 'config'
+                    ? '사이트 설정(config.js)이 없습니다.'
+                    : '목록을 불러오지 못했습니다.'
+                adminErr.classList.remove('hidden')
+              }
+            })
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+          e.preventDefault()
+          var value = String(new FormData(e.target).get('secret') || '')
+          sessionStorage.setItem(STORAGE_KEY, value)
+          document.getElementById('login-error').classList.add('hidden')
+          loadList()
+        })
+
+        document.getElementById('refresh-btn').addEventListener('click', loadList)
+        document.getElementById('logout-btn').addEventListener('click', function () {
+          sessionStorage.removeItem(STORAGE_KEY)
+          setLoggedIn(false)
+        })
+
+        if (secret()) loadList()
+      })()
+    </script>
+  </body>
+</html>
