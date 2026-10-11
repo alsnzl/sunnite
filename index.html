@@ -465,23 +465,65 @@
             )
           }).join('')
 
-          qaList.querySelectorAll('details.qa-item').forEach(function (details) {
+          function panelOf(details) {
+            return details.querySelector('.qa-answer')
+          }
+
+          function innerOf(details) {
+            return details.querySelector('.qa-answer__inner')
+          }
+
+          function openQa(details) {
+            var panel = panelOf(details)
+            var inner = innerOf(details)
+            if (!panel || !inner || details.classList.contains('is-animating')) return
+            details.classList.add('is-animating')
+            details.setAttribute('open', '')
+            details.classList.add('is-open')
+            panel.style.height = '0px'
+            void panel.offsetHeight
+            panel.style.height = inner.scrollHeight + 'px'
+            function onEnd(ev) {
+              if (ev.target !== panel || ev.propertyName !== 'height') return
+              panel.style.height = 'auto'
+              details.classList.remove('is-animating')
+              panel.removeEventListener('transitionend', onEnd)
+            }
+            panel.addEventListener('transitionend', onEnd)
+          }
+
+          function closeQa(details) {
+            var panel = panelOf(details)
+            var inner = innerOf(details)
+            if (!panel || !inner || details.classList.contains('is-animating')) return
+            details.classList.add('is-animating')
+            panel.style.height = inner.scrollHeight + 'px'
+            void panel.offsetHeight
+            details.classList.remove('is-open')
+            panel.style.height = '0px'
+            function onEnd(ev) {
+              if (ev.target !== panel || ev.propertyName !== 'height') return
+              details.removeAttribute('open')
+              details.classList.remove('is-animating')
+              panel.removeEventListener('transitionend', onEnd)
+            }
+            panel.addEventListener('transitionend', onEnd)
+          }
+
+          qaList.querySelectorAll('details.qa-item').forEach(function (details, index) {
+            var panel = panelOf(details)
+            var inner = innerOf(details)
             var summary = details.querySelector('summary')
-            if (!summary) return
+            if (!panel || !inner || !summary) return
+
+            if (index === 0) {
+              panel.style.height = 'auto'
+            }
+
             summary.addEventListener('click', function (e) {
               e.preventDefault()
-              if (details.open) {
-                details.classList.remove('is-open')
-                window.setTimeout(function () {
-                  details.removeAttribute('open')
-                }, 380)
-              } else {
-                details.setAttribute('open', '')
-                // next frame so grid transition runs
-                requestAnimationFrame(function () {
-                  details.classList.add('is-open')
-                })
-              }
+              if (details.classList.contains('is-open')) closeQa(details)
+              else openQa(details)
             })
           })
         }
