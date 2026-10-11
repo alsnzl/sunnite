@@ -4,10 +4,15 @@ const url = (process.env.SUNNITE_SUPABASE_URL || '').trim()
 const anon = (process.env.SUNNITE_SUPABASE_ANON_KEY || '').trim()
 
 if (!url || !anon) {
-  console.error(
-    'Missing SUNNITE_SUPABASE_URL or SUNNITE_SUPABASE_ANON_KEY (set in Netlify env).',
+  console.warn(
+    'SUNNITE_SUPABASE_URL / SUNNITE_SUPABASE_ANON_KEY not set — writing empty config.js (pages still publish).',
   )
-  process.exit(1)
+  writeFileSync(
+    new URL('../config.js', import.meta.url),
+    `window.SUNNITE_CONFIG = { supabaseUrl: '', supabaseAnonKey: '' };\n`,
+    'utf8',
+  )
+  process.exit(0)
 }
 
 const body = `window.SUNNITE_CONFIG = ${JSON.stringify(
